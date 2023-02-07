@@ -1,0 +1,34 @@
+esphome:
+  name: esp-led
+
+esp8266:
+  board: d1_mini
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "2YIEFhjgEaDoZ1a5JUQLirkwHH+37TBRSLeTudqwRI4="
+
+ota:
+  password: "70a7038355d3b364a8015ec6a5f793b2"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Esp-Led Fallback Hotspot"
+    password: "ACaLtbizuA1b"
+
+captive_portal:
+
+switch:
+  - platform: gpio
+    name: "Relay"
+    pin: D4
+    inverted: true
+    

@@ -1,0 +1,45 @@
+esphome:
+  name: esp-co2-01
+
+esp8266:
+  board: d1_mini_pro
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+
+ota:
+#  password: "9bac20854b6e1f5575248c848b881fdd"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Esp-Co2-01 Fallback Hotspot"
+#    password: "HmBZ9FYM5Ulb"
+
+captive_portal:
+
+
+i2c:
+  sda: D2
+  scl: D1
+
+sensor:
+  - platform: ccs811
+    eco2:
+      name: "CCS811 eCO2 Value"
+    tvoc:
+      name: "CCS811 Total Volatile Organic Compound"
+    address: 0x5A
+    update_interval: 30s
+    
+    # Example configuration entry
+  - platform: bh1750
+    name: "BH1750 Illuminance"
+    address: 0x23
+    update_interval: 30s

@@ -1,0 +1,257 @@
+esphome:
+  name: esp-wing-sw02
+
+esp32:
+  board: esp32doit-devkit-v1
+  framework:
+    type: arduino
+
+# Enable logging
+logger:
+  baud_rate: 0
+
+# Enable Home Assistant API
+api:
+
+ota:
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Esp-wing-sw02 Fallback Hotspot"
+
+
+captive_portal:
+    
+number:
+  platform: template
+  name: inching time
+  optimistic: true
+  id: inching_t
+  entity_category: config
+  unit_of_measurement: 's'
+  min_value: 0
+  max_value: 120
+  step: 10
+  initial_value: 120
+  
+
+binary_sensor:
+  - platform: gpio
+    pin: RX
+    id: auto_sw
+    filters: invert
+    on_press:
+      then:
+        - switch.turn_on: auto_relay  
+    on_release:
+      then:
+        - switch.turn_off: auto_relay  
+  
+switch:
+  - platform: gpio
+    id: auto_relay
+    name: "Auto SW"
+    pin: TX
+    inverted: true
+    restore_mode : ALWAYS_OFF
+    
+  - platform: gpio
+    pin: GPIO16
+    id: relay1_main
+    inverted: true
+    restore_mode : ALWAYS_OFF
+    
+  - platform: gpio
+    id: relay1_sub
+    pin: GPIO17
+    inverted: true
+    restore_mode : ALWAYS_OFF
+    
+  - platform: gpio
+    id: relay2_main
+    pin: GPIO18
+    inverted: true
+    restore_mode : ALWAYS_OFF
+    
+  - platform: gpio
+    id: relay2_sub
+    pin: GPIO19
+    inverted: true    
+    restore_mode : ALWAYS_OFF
+    
+  - platform: gpio
+    id: relay3_main
+    pin: GPIO21
+    inverted: true    
+    restore_mode : ALWAYS_OFF
+    
+  - platform: gpio
+    id: relay3_sub
+    pin: GPIO22
+    inverted: true  
+    restore_mode : ALWAYS_OFF
+    
+  - platform: gpio
+    id: relay4_main
+    pin: GPIO23
+    inverted: true
+    restore_mode : ALWAYS_OFF
+    
+  - platform: gpio
+    id: relay4_sub
+    pin: GPIO25
+    inverted: true    
+    restore_mode : ALWAYS_OFF
+    
+    
+##################################    
+  - platform: template
+    name: wing1 up
+    id: wing1_up
+    lambda: |-
+      if (!id(relay1_sub).state && id(relay1_main).state) {
+        return true;
+      } else {
+        return false;
+      }
+    turn_on_action:
+      - switch.turn_off: relay1_sub
+      - switch.turn_on: relay1_main
+      - delay: !lambda "return id(inching_t).state * 1000;"
+      - switch.turn_off: wing1_up
+      
+    turn_off_action:
+      - switch.turn_off: relay1_main
+      - switch.turn_off: relay1_sub
+      
+  - platform: template
+    name: wing1 down
+    id: wing1_down
+    lambda: |-
+      if (id(relay1_sub).state && id(relay1_main).state) {
+        return true;
+      } else {
+        return false;
+      }
+    turn_on_action:
+      - switch.turn_on: relay1_sub
+      - switch.turn_on: relay1_main
+      - delay: !lambda "return id(inching_t).state * 1000;"
+      - switch.turn_off: wing1_down
+    turn_off_action:
+      - switch.turn_off: relay1_main
+      - switch.turn_off: relay1_sub      
+      
+  - platform: template
+    name: wing2 up
+    id: wing2_up
+    lambda: |-
+      if (!id(relay2_sub).state && id(relay2_main).state) {
+        return true;
+      } else {
+        return false;
+      }
+    turn_on_action:
+      - switch.turn_off: relay2_sub
+      - switch.turn_on: relay2_main
+      - delay: !lambda "return id(inching_t).state * 1000;"
+      - switch.turn_off: wing2_up
+    turn_off_action:
+      - switch.turn_off: relay2_main
+      - switch.turn_off: relay2_sub
+      
+  - platform: template
+    name: wing2 down
+    id: wing2_down
+    lambda: |-
+      if (id(relay2_sub).state && id(relay2_main).state) {
+        return true;
+      } else {
+        return false;
+      }
+    turn_on_action:
+      - switch.turn_on: relay2_sub
+      - switch.turn_on: relay2_main
+      - delay: !lambda "return id(inching_t).state * 1000;"
+      - switch.turn_off: wing2_down      
+    turn_off_action:
+      - switch.turn_off: relay2_main
+      - switch.turn_off: relay2_sub   
+      
+  - platform: template
+    name: wing3 up
+    id: wing3_up
+    lambda: |-
+      if (!id(relay3_sub).state && id(relay3_main).state) {
+        return true;
+      } else {
+        return false;
+      }
+    turn_on_action:
+      - switch.turn_off: relay3_sub
+      - switch.turn_on: relay3_main
+      - delay: !lambda "return id(inching_t).state * 1000;"
+      - switch.turn_off: wing3_up      
+    turn_off_action:
+      - switch.turn_off: relay3_main
+      - switch.turn_off: relay3_sub
+      
+  - platform: template
+    name: wing3 down
+    id: wing3_down
+    lambda: |-
+      if (id(relay3_sub).state && id(relay3_main).state) {
+        return true;
+      } else {
+        return false;
+      }
+    turn_on_action:
+      - switch.turn_on: relay3_sub
+      - switch.turn_on: relay3_main
+      - delay: !lambda "return id(inching_t).state * 1000;"
+      - switch.turn_off: wing3_down      
+    turn_off_action:
+      - switch.turn_off: relay3_main
+      - switch.turn_off: relay3_sub    
+      
+  - platform: template
+    name: wing4 up
+    id: wing4_up
+    lambda: |-
+      if (!id(relay4_sub).state && id(relay4_main).state) {
+        return true;
+      } else {
+        return false;
+      }
+    turn_on_action:
+      - switch.turn_off: relay4_sub
+      - switch.turn_on: relay4_main
+      - delay: !lambda "return id(inching_t).state * 1000;"
+      - switch.turn_off: wing4_up      
+    turn_off_action:
+      - switch.turn_off: relay4_main
+      - switch.turn_off: relay4_sub
+      
+  - platform: template
+    name: wing4 down
+    id: wing4_down
+    lambda: |-
+      if (id(relay4_sub).state && id(relay4_main).state) {
+        return true;
+      } else {
+        return false;
+      }
+    turn_on_action:
+      - switch.turn_on: relay4_sub
+      - switch.turn_on: relay4_main
+      - delay: !lambda "return id(inching_t).state * 1000;"
+      - switch.turn_off: wing4_down      
+    turn_off_action:
+      - switch.turn_off: relay4_main
+      - switch.turn_off: relay4_sub                   
+      
+   

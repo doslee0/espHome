@@ -1,0 +1,60 @@
+esphome:
+  name: esp-test3
+
+esp8266:
+  board: d1_mini_lite
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+
+ota:
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Esp-Test3 Fallback Hotspot"
+
+
+captive_portal:
+    
+i2c:
+
+switch:
+#  - platform: gpio
+#    pin: GPIO16
+#    id: led
+#    restore_mode: ALWAYS_ON
+
+deep_sleep:
+  run_duration: 6s
+  sleep_duration: 10min
+    
+sensor:
+  - platform: bme280
+    temperature:
+      name: "BME280 Temperature"
+      oversampling: 16x
+    pressure:
+      name: "BME280 Pressure"
+    humidity:
+      name: "BME280 Humidity"
+    address: 0x76
+    update_interval: 5s  
+    
+  - platform: adc
+    pin: A0
+    name: "Volt"
+    update_interval: 1s
+    filters:
+      - multiply: 7.073
+      - quantile:
+          window_size: 5
+          send_every: 5
+          send_first_at: 5
+          quantile: .9    

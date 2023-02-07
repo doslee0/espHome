@@ -1,0 +1,154 @@
+esphome:
+  name: home-1-solar-ct
+  platform: ESP32
+  board: esp32doit-devkit-v1
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+
+ota:
+  password: "47026e1cf01be80e12b9d7856d1089c3"
+
+wifi:
+  ssid: "iptime"
+  password: "asdf1234"
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Home-1-Solar-Ct Fallback Hotspot"
+    password: "QkHckSS3bicD"
+
+captive_portal:
+
+substitutions:
+  device_name: home-assistant-glow
+  friendly_name: House
+  device_description: "Measure your energy consumption with the pulse LED on your smart meter"
+  pulse_pin: GPIO12
+  status_led: GPIO14
+  # imp/kWh rate ⬇ #
+  pulse_rate: '1000'
+
+# Enable Home Assistant API
+api:
+  password: asdf1234
+  services:
+  - service: reset_total
+    then:
+      - pulse_meter.set_total_pulses:
+          id: energy_pulse_meter
+          value: 0
+
+web_server:
+  port: 80
+  auth:
+    username: doslee
+    password: asdf1234
+
+output:
+  # - platform: gpio
+  #   pin: GPIO5
+  #   id: output_blue
+  - platform: gpio
+    pin: GPIO2
+    id: output_red
+  - platform: gpio
+    pin: GPIO4
+    id: output_green
+
+light:
+  - platform: binary
+    internal: true
+    id: led_red
+    name: Red
+    output: output_red
+
+# Status LED for connection
+status_led:
+  pin:
+    # Blue LED
+    number: ${status_led}
+
+# Sensors for ESP version and WIFI information
+text_sensor:
+  - platform: version
+    hide_timestamp: true
+    name: "${friendly_name} - ESPHome Version"
+  - platform: wifi_info
+    ip_address:
+      name: "${friendly_name} - IP Address"
+      icon: mdi:wifi
+    ssid:
+      name: "${friendly_name} - Connected SSID"
+      icon: mdi:wifi-strength-2
+
+sensor:
+  - platform: pulse_meter
+    id: energy_pulse_meter
+    name: '${friendly_name} - Power consumption'
+    unit_of_measurement: 'W'
+    state_class: measurement
+    device_class: power
+    icon: mdi:flash-outline
+    accuracy_decimals: 0
+    pin: ${pulse_pin}
+    # internal_filter: 100ms
+    on_value:
+      then:
+        - light.turn_on:
+            id: led_red
+        - delay: 0.5s
+        - light.turn_off:
+            id: led_red
+    filters:
+      # multiply value = (60 / imp value) * 1000
+      # - multiply: 60
+      - lambda: return x * ((60.0 / ${pulse_rate}) * 1000.0);
+    total:
+      name: '${friendly_name} - Total energy'
+      unit_of_measurement: 'kWh'
+      icon: mdi:circle-slice-3
+      state_class: total_increasing
+      device_class: energy
+      accuracy_decimals: 3
+      filters:
+        # multiply value = 1 / imp value
+        # - multiply: 0.001
+        - lambda: return x * (1.0 / ${pulse_rate});    
+####
+####
+  - platform: ct_clamp
+    sensor: adc_sensor36
+    name: "Home 1 Solar A"
+    update_interval: 10s
+    sample_duration: 400ms
+    filters:
+      - calibrate_linear:
+          - 0.036 -> 0.4
+          - 0.415 -> 8.8
+          
+        
+  - platform: ct_clamp
+    sensor: adc_sensor39
+    name: "Home 1 Used A"
+    update_interval: 10s
+    sample_duration: 400ms
+    filters:
+      - calibrate_linear:
+          - 0.052 -> 0.5
+          - 0.394 -> 9.2
+          
+  - platform: adc
+    pin: GPIO36
+    attenuation: 11db
+    id: adc_sensor36       
+  
+    
+  - platform: adc
+    pin: GPIO39
+    attenuation: 11db
+    id: adc_sensor39    
+    
+      

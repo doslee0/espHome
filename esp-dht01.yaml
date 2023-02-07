@@ -1,0 +1,36 @@
+esphome:
+  name: "esp-dht01"
+
+esp8266:
+  board: d1_mini
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+#  encryption:
+#    key: "LxaXE8002aASGlQHWXXG3POu/zIQxwsFbhwUYZQZqf0="
+
+ota:
+#  password: "85d8faa9d3d424d7498c0156adc452fb"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Esp-Dallas05 Fallback Hotspot"
+#    password: "71Q1ijvR0ayd"
+
+captive_portal:
+    
+sensor:
+  - platform: dht
+    pin: 5
+    temperature:
+      name: "Temperature"
+    humidity:
+      name: "Humidity"
+    update_interval: 10s

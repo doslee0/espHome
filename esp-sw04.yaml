@@ -1,0 +1,268 @@
+esphome:
+  name: esp-sw04
+
+esp32:
+  board: esp32doit-devkit-v1
+  framework:
+    type: arduino
+
+# Enable logging
+logger:
+  baud_rate: 0
+
+# Enable Home Assistant API
+api:
+
+ota:
+#  password: "7bdc97baebb63cfda0209084d4ef15a0"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Esp-Sw04 Fallback Hotspot"
+#    password: "YHG9D5rNizTH"
+
+captive_portal:
+
+switch:
+  - platform: gpio
+    pin: GPIO13
+    id: wing1_relay1_main
+    name: "Wing1 Relay1 main"
+    restore_mode : ALWAYS_OFF
+    internal: true
+    #on_turn_on:
+    #  then:
+    #  - switch.toggle: relay1
+  - platform: gpio
+    pin: GPIO12
+    id: wing1_relay1_sub
+    name: "Wing1 Relay1 sub"
+    restore_mode : ALWAYS_OFF
+    internal: true
+  
+  - platform: gpio
+    pin: GPIO14
+    id: wing1_relay2_main
+    name: "Wing1 Relay2 main"
+    restore_mode : ALWAYS_OFF
+    internal: true
+
+  - platform: gpio
+    pin: GPIO27
+    id: wing1_relay2_sub
+    name: "Wing1 Relay2 sub"
+    restore_mode : ALWAYS_OFF
+    internal: true
+  
+  - platform: gpio
+    pin: GPIO26
+    id: wing1_relay3_main
+    name: "Wing1 Relay3 main"
+    restore_mode : ALWAYS_OFF
+    internal: true
+    
+  - platform: gpio
+    pin: GPIO25
+    id: wing1_relay3_sub
+    name: "Wing1 Relay3 sub"
+    restore_mode : ALWAYS_OFF
+    internal: true
+   
+  - platform: gpio
+    pin: GPIO33
+    id: wing1_relay4_main
+    name: "Wing1 Relay4 main"
+    restore_mode : ALWAYS_OFF  
+    internal: true
+    
+  - platform: gpio
+    pin: GPIO32
+    id: wing1_relay4_sub
+    name: "Wing1 Relay4 sub"
+    restore_mode : ALWAYS_OFF    
+    internal: true
+
+
+#########################  
+
+#  - platform: gpio
+#    pin: GPIO15
+#    id: wing2_relay1_main
+#    name: "Wing2 Relay1 main"
+#    restore_mode : ALWAYS_OFF
+    #on_turn_on:
+    #  then:
+    #  - switch.toggle: relay1
+#  - platform: gpio
+#    pin: GPIO4
+#    id: wing2_relay1_sub
+#    name: "Wing2 Relay1 sub"
+#    restore_mode : ALWAYS_OFF
+  
+#  - platform: gpio
+#    pin: GPIO5
+#    id: wing2_relay2_main
+#    name: "Wing2 Relay2 main"
+#    restore_mode : ALWAYS_OFF
+
+#  - platform: gpio
+#    pin: GPIO18
+#    id: wing2_relay2_sub
+#    name: "Wing2 Relay2 sub"
+#    restore_mode : ALWAYS_OFF
+  
+#  - platform: gpio
+#    pin: GPIO19
+#    id: wing2_relay3_main
+#    name: "Wing2 Relay3 main"
+#    restore_mode : ALWAYS_OFF
+    
+#  - platform: gpio
+#    pin: GPIO21
+#    id: wing2_relay3_sub
+#    name: "Wing2 Relay3 sub"
+#    restore_mode : ALWAYS_OFF
+    
+#  - platform: gpio
+#    pin: GPIO22
+#    id: wing2_relay4_main
+#    name: "Wing2 Relay4 main"
+#    restore_mode : ALWAYS_OFF  
+    
+#  - platform: gpio
+#    pin: GPIO23
+#    id: wing2_relay4_sub
+#    name: "Wing2 Relay4 sub"
+#    restore_mode : ALWAYS_OFF    
+    
+  - platform: template
+    name: wing1 up
+    id: wing1_up
+    lambda: |-
+      if (!id(wing1_relay1_sub).state && id(wing1_relay1_main).state) {
+        return true;
+      } else {
+        return false;
+      }
+    turn_on_action:
+      - switch.turn_off: wing1_relay1_sub
+      - switch.turn_on: wing1_relay1_main
+    turn_off_action:
+      - switch.turn_off: wing1_relay1_main
+      - switch.turn_off: wing1_relay1_sub
+      
+  - platform: template
+    name: wing1 down
+    id: wing1_down
+    lambda: |-
+      if (id(wing1_relay1_sub).state && id(wing1_relay1_main).state) {
+        return true;
+      } else {
+        return false;
+      }
+    turn_on_action:
+      - switch.turn_on: wing1_relay1_sub
+      - switch.turn_on: wing1_relay1_main
+    turn_off_action:
+      - switch.turn_off: wing1_relay1_main
+      - switch.turn_off: wing1_relay1_sub      
+      
+  - platform: template
+    name: wing2 up
+    id: wing2_up
+    lambda: |-
+      if (!id(wing1_relay2_sub).state && id(wing1_relay2_main).state) {
+        return true;
+      } else {
+        return false;
+      }
+    turn_on_action:
+      - switch.turn_off: wing1_relay2_sub
+      - switch.turn_on: wing1_relay2_main
+    turn_off_action:
+      - switch.turn_off: wing1_relay2_main
+      - switch.turn_off: wing1_relay2_sub
+      
+  - platform: template
+    name: wing2 down
+    id: wing2_down
+    lambda: |-
+      if (id(wing1_relay2_sub).state && id(wing1_relay2_main).state) {
+        return true;
+      } else {
+        return false;
+      }
+    turn_on_action:
+      - switch.turn_on: wing1_relay2_sub
+      - switch.turn_on: wing1_relay2_main
+    turn_off_action:
+      - switch.turn_off: wing1_relay2_main
+      - switch.turn_off: wing1_relay2_sub   
+      
+  - platform: template
+    name: wing3 up
+    id: wing3_up
+    lambda: |-
+      if (!id(wing1_relay3_sub).state && id(wing1_relay3_main).state) {
+        return true;
+      } else {
+        return false;
+      }
+    turn_on_action:
+      - switch.turn_off: wing1_relay3_sub
+      - switch.turn_on: wing1_relay3_main
+    turn_off_action:
+      - switch.turn_off: wing1_relay3_main
+      - switch.turn_off: wing1_relay3_sub
+      
+  - platform: template
+    name: wing3 down
+    id: wing3_down
+    lambda: |-
+      if (id(wing1_relay3_sub).state && id(wing1_relay3_main).state) {
+        return true;
+      } else {
+        return false;
+      }
+    turn_on_action:
+      - switch.turn_on: wing1_relay3_sub
+      - switch.turn_on: wing1_relay3_main
+    turn_off_action:
+      - switch.turn_off: wing1_relay3_main
+      - switch.turn_off: wing1_relay3_sub    
+      
+  - platform: template
+    name: wing4 up
+    id: wing4_up
+    lambda: |-
+      if (!id(wing1_relay4_sub).state && id(wing1_relay4_main).state) {
+        return true;
+      } else {
+        return false;
+      }
+    turn_on_action:
+      - switch.turn_off: wing1_relay4_sub
+      - switch.turn_on: wing1_relay4_main
+    turn_off_action:
+      - switch.turn_off: wing1_relay4_main
+      - switch.turn_off: wing1_relay4_sub
+      
+  - platform: template
+    name: wing4 down
+    id: wing4_down
+    lambda: |-
+      if (id(wing1_relay4_sub).state && id(wing1_relay4_main).state) {
+        return true;
+      } else {
+        return false;
+      }
+    turn_on_action:
+      - switch.turn_on: wing1_relay4_sub
+      - switch.turn_on: wing1_relay4_main
+    turn_off_action:
+      - switch.turn_off: wing1_relay4_main
+      - switch.turn_off: wing1_relay4_sub             

@@ -1,0 +1,158 @@
+esphome:
+  name: esp-water
+
+esp32:
+  board: esp32doit-devkit-v1
+  framework:
+    type: arduino
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+
+
+ota:
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Esp-Water Fallback Hotspot"
+
+captive_portal:
+
+globals:
+   - id: cal_v
+     type: int
+     restore_value: yes
+   - id: cal_t
+     type: int
+     restore_value: yes
+i2c:
+  sda: GPIO21
+  scl: GPIO22
+
+display:
+  - platform: lcd_pcf8574
+    dimensions: 16x2
+    address: 0x27
+    lambda: |-
+      it.printf(0,0,"%3.1fmg/L     %3.0f%%", id(d_oxy).state, id(s_oxy).state);
+      it.printf(0,1,"%4.2fmV %2.0fC",id(voltage_mv).state, id(temp_c).state);
+
+button:
+  - platform: template
+    name: "Calibration"
+    on_press:
+      - globals.set:
+          id: cal_v
+          value: !lambda |-
+            return id(voltage_mv).state * 1000;
+      - globals.set:
+          id: cal_t
+          value: !lambda |-
+            return id(temp_c).state;
+
+# Individual sensors
+sensor:
+  - platform: adc
+    pin: GPIO36
+    id: voltage_mv
+    attenuation: auto
+    update_interval: never  
+    filters:
+      - quantile:
+          window_size: 50
+          send_every: 50
+          quantile: .5    
+    name: "Now Volt"
+    on_value:
+        then:
+          - component.update: d_oxy
+          - component.update: desolved_oxygen
+          - component.update: s_oxy
+          
+  - platform: template  
+    id: d_oxy
+    lambda: |-
+      const uint16_t DO_Table[41] = {
+        14460, 14220, 13820, 13440, 13090, 12740, 12420, 12110, 11810, 11530,
+        11260, 11010, 10770, 10530, 10300, 10080, 9860, 9660, 9460, 9270,
+        9080, 8900, 8730, 8570, 8410, 8250, 8110, 7960, 7820, 7690,
+        7560, 7430, 7300, 7180, 7070, 6950, 6840, 6730, 6630, 6530, 6410};
+      uint16_t V_saturation = (uint32_t)id(cal_v) + ((uint32_t)id(temp_c).state - (uint32_t)id(cal_t)) * 35;
+      return (id(voltage_mv).state * DO_Table[(uint32_t)id(temp_c).state] / V_saturation);
+    
+  - platform: template  
+    name: Desolved Oxygen
+    id: desolved_oxygen
+    unit_of_measurement: "mg/L"
+    lambda: |-
+      return id(d_oxy).state;
+    
+  - platform: template  
+    name: Oxygen Saturation
+    id: s_oxy
+    unit_of_measurement: "%"
+    lambda: |-
+      const uint16_t DO_Table[41] = {
+        14460, 14220, 13820, 13440, 13090, 12740, 12420, 12110, 11810, 11530,
+        11260, 11010, 10770, 10530, 10300, 10080, 9860, 9660, 9460, 9270,
+        9080, 8900, 8730, 8570, 8410, 8250, 8110, 7960, 7820, 7690,
+        7560, 7430, 7300, 7180, 7070, 6950, 6840, 6730, 6630, 6530, 6410};
+      return (id(desolved_oxygen).state * 1000.0 / DO_Table[(uint32_t)id(temp_c).state] * 100.0);
+
+  - platform: ntc
+    sensor: resistance_sensor
+    calibration:
+      - 4709Ohm -> 46.0°C
+      - 9197.1Ohm -> 27.7°C
+      - 17299.5Ohm -> 11.3°C
+    id: temp_c    
+    name: "Now Temperature"
+      
+  # Example source sensors:
+  - platform: resistance
+    id: resistance_sensor
+    sensor: source_sensor
+    configuration: DOWNSTREAM
+    resistor: 9.1kOhm
+    
+  - platform: adc
+    id: source_sensor
+    pin: GPIO39    
+    update_interval: never
+    attenuation: auto
+    accuracy_decimals: 3
+    filters:
+      - quantile:
+          window_size: 50
+          send_every: 50
+          quantile: .5
+
+switch:
+  - platform: gpio
+    pin: GPIO16
+    id: ntc_vcc
+    
+interval:
+  - interval: 5s
+    then:
+      - switch.turn_on: ntc_vcc
+      - delay: 0.1s
+      - repeat:
+          count: 50
+          then:
+            - component.update: source_sensor
+            - delay: 0.02s
+      - switch.turn_off: ntc_vcc    
+      - repeat:
+          count: 50
+          then:
+            - component.update: voltage_mv
+            - delay: 0.02s
+    

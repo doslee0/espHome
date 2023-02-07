@@ -1,0 +1,46 @@
+esphome:
+  name: esp-door-cover
+
+esp8266:
+  board: d1_mini
+
+cover:
+  - platform: time_based
+    id: door_cover
+    open_action:
+      - switch.turn_on: relay_sub
+      - delay: 0.1s      
+      - switch.turn_on: relay_main
+    open_duration: 25s
+    close_action:
+      - switch.turn_on: relay_main
+    close_duration: 25s
+    stop_action:
+      - switch.turn_off: relay_main
+      - delay: 0.1s
+      - switch.turn_off: relay_sub
+     
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: D2
+      mode:
+        input: true
+        pullup: true
+    id: push_switch
+    on_press:
+      - cover.toggle: door_cover          
+              
+switch:
+  - platform: gpio
+    pin: D3
+    id: relay_main
+    inverted: ON
+
+  - platform: gpio
+    pin: D4
+    id: relay_sub
+    inverted: ON
+
+      
+    

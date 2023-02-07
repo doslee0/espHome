@@ -1,0 +1,73 @@
+esphome:
+  name: esp-modbus01
+
+esp32:
+  board: esp32doit-devkit-v1
+  framework:
+    type: arduino
+
+# Enable logging
+logger:
+    baud_rate: 0
+# Enable Home Assistant API
+api:
+#  encryption:
+#    key: "/s0p0wEOPK4lKrN6vh54v85L5s9wYGQSsYeykHwBDew="
+
+ota:
+#  password: "03d89e1438bd1f9d2703a3abb450273f"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Esp-Modbus01 Fallback Hotspot"
+#    password: "UqC4XPKviyaT"
+
+captive_portal:
+
+uart:
+  id: mod_bus
+  tx_pin: 17
+  rx_pin: 16
+  baud_rate: 9600
+  stop_bits: 1
+
+modbus:
+  id: modbus1
+
+modbus_controller:
+  - id: dosensor
+    ## the Modbus device addr
+    address: 0x6
+    modbus_id: modbus1
+    command_throttle: 500ms
+    setup_priority: -10
+    update_interval: 3s
+
+sensor:
+  - platform: modbus_controller
+    modbus_controller_id: dosensor
+    name: "Dissolved Oxygen"
+    id: dissolved_oxygen
+    register_type: holding
+    address: 0x0000
+    unit_of_measurement: "mg/L"
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.01
+    
+  - platform: modbus_controller
+    modbus_controller_id: dosensor
+    name: "Dissolved Temp"
+    id: dissolved_temp
+    register_type: holding
+    address: 0x0001
+    unit_of_measurement: "C"
+    value_type: U_WORD
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1

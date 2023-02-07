@@ -1,0 +1,57 @@
+esphome:
+  name: home-2-solar-ct
+  platform: ESP32
+  board: lolin_d32
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+
+ota:
+  password: "d06464d75c8943a0881d746411842f33"
+
+wifi:
+  ssid: "iptime"
+  password: "asdf1234"
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Home-2-Solar-Ct Fallback Hotspot"
+    password: "VpL8WDxuGAoV"
+
+captive_portal:
+
+sensor:
+  - platform: ct_clamp
+    sensor: adc_sensor36
+    name: "Home 2 Solar A"
+    update_interval: 10s
+    sample_duration: 400ms
+    filters:
+      - calibrate_linear:
+          - 0.012 -> 0.0
+          - 0.444 -> 9.0
+  
+  - platform: ct_clamp
+    sensor: adc_sensor39
+    name: "Home 2 Used A"
+    update_interval: 10s
+    sample_duration: 400ms
+    filters:
+      - calibrate_linear:
+          - 0.007 -> 0.0
+          - 0.325 -> 8.8
+          
+  - platform: adc
+    pin: GPIO36
+    attenuation: 11db
+    id: adc_sensor36       
+  
+    
+  - platform: adc
+    pin: GPIO39
+    attenuation: 11db
+    id: adc_sensor39       
+  

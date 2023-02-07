@@ -1,0 +1,147 @@
+esphome:
+  name: esp-door
+
+esp8266:
+  board: d1_mini
+
+# 배박사님 정문 개패기
+# 2022
+# Enable logging
+#logger:
+
+# Enable Home Assistant API
+#api:
+#  encryption:
+#    key: "2e1SP4n9oCj8jKx4wLWyx52AQz3oMWC+f/9HGQPXExs="
+
+#ota:
+#  password: "502434deda043ccbf8af1b5ebfb276d5"
+
+#wifi:
+#  ssid: !secret wifi_ssid
+#  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+#  ap:
+#    ssid: "Esp-Door Fallback Hotspot"
+#    password: "fh6zwTZ6g2Dl"
+
+#captive_portal:
+
+globals:
+   - id: my_int
+     type: int
+     restore_value: no
+     initial_value: '0'
+     
+   - id: inching_t
+     type: int
+     restore_value: no
+     initial_value: '20'  
+     
+            
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: D2
+      mode:
+        input: true
+        pullup: true
+    name: push switch
+    id: push_switch
+    
+    on_press:
+      - lambda: |-
+          if (id(my_int) >= 4) {
+            id(my_int) = 1;
+          } else {
+            id(my_int) += 1;
+          };
+          
+      - if:
+          condition:
+            lambda: "return id(my_int) == 1;"
+          then:
+            - switch.turn_on: door_open
+              
+      - if:
+          condition:
+            lambda: "return id(my_int) == 2;"
+          then:
+            - switch.turn_off: door_open  
+              
+      - if:
+          condition:
+            lambda: "return id(my_int) == 3;"
+          then:
+            - switch.turn_on: door_close              
+              
+      - if:
+          condition:
+            lambda: "return id(my_int) == 4;"
+          then:
+            - switch.turn_off: door_close              
+              
+switch:
+  - platform: gpio
+    pin: D3
+    id: relay_main
+    inverted: ON
+    restore_mode : ALWAYS_OFF
+    internal: true
+    #on_turn_on:
+    #  then:
+    #  - switch.toggle: relay1
+  - platform: gpio
+    pin: D4
+    id: relay_sub
+    inverted: ON
+    restore_mode : ALWAYS_OFF
+    internal: true
+  
+
+  - platform: template
+    name: Door open
+    id: door_open
+    lambda: |-
+      if (id(relay_sub).state && id(relay_main).state) {
+        return true;
+      } else {
+        return false;
+      }
+    turn_on_action:
+      - switch.turn_on: relay_sub
+      - delay: 0.5s      
+      - switch.turn_on: relay_main
+      - delay: !lambda "return id(inching_t) * 1000;"
+      - lambda: "id(my_int) += 1;"
+      - switch.turn_off: door_open
+
+      
+    turn_off_action:
+      - switch.turn_off: relay_main
+      - delay: 0.5s
+      - switch.turn_off: relay_sub
+      
+  - platform: template
+    name: Door close
+    id: door_close
+    lambda: |-
+      if (!id(relay_sub).state && id(relay_main).state) {
+        return true;
+      } else {
+        return false;
+      }
+    turn_on_action:
+      - switch.turn_off: relay_sub
+      - delay: 0.5s
+      - switch.turn_on: relay_main
+      - delay: !lambda "return id(inching_t) * 1000;"
+      - lambda: "id(my_int) += 1;"
+      - switch.turn_off: door_close
+      
+    turn_off_action:
+      - switch.turn_off: relay_main
+      - delay: 0.5s
+      - switch.turn_off: relay_sub      
+      

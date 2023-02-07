@@ -1,0 +1,45 @@
+esphome:
+  name: esp-sw20
+
+esp8266:
+  board: esp01_1m
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+
+ota:
+
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Esp-Sw20 Fallback Hotspot"
+
+captive_portal:
+
+switch:
+  - platform: gpio
+    id: relay1
+    name: "SW1"
+    pin: GPIO14   
+      
+  - platform: gpio
+    id: relay2
+    name: "SW2"
+    pin: GPIO12    
+      
+  - platform: gpio
+    id: relay3
+    name: "SW3"    
+    pin: GPIO13     
+      
+  - platform: gpio
+    id: relay4
+    name: "Auto SW"
+    pin: GPIO15    

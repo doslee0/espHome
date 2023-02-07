@@ -1,0 +1,342 @@
+esphome:
+  name: esp-rfid2
+  on_boot:
+    priority: 600
+    # ...
+    then:
+      dfplayer.reset
+
+esp8266:
+  board: d1_mini
+
+# Enable logging
+logger:
+  baud_rate: 0
+
+# Enable Home Assistant API
+#ota:
+#wifi:
+#  ssid: !secret wifi_ssid
+#  password: !secret wifi_password
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+#  ap:
+#    ssid: "Esp-Rfid Fallback Hotspot"
+
+#captive_portal:
+
+i2c:
+  sda: D2
+  scl: D1
+  scan: true
+  id: bus_a
+
+pn532_i2c:
+  update_interval: 0.1s
+
+
+    
+spi:
+  clk_pin: D5
+  mosi_pin: D7
+  miso_pin: D6
+
+rc522_spi:
+  cs_pin: D8
+  reset_pin: D3
+  # on_tag:
+  #   then:
+  #     - if:
+  #         condition:
+  #           binary_sensor.is_on: RFID
+  #         then:
+  #           dfplayer.play: 1
+  #     - if:
+  #         condition:
+  #           binary_sensor.is_off: RFID
+  #         then:
+  #           dfplayer.play: 2
+
+binary_sensor:
+  - platform: rc522
+    uid: 00-00-00-01
+    id: RFID01     
+    on_press:
+      then:
+        dfplayer.play: 1
+  
+  - platform: pn532
+    uid: 00-00-00-01
+    id: pn01     
+    on_press:
+      then:
+        dfplayer.play: 1       
+
+  - platform: rc522
+    uid: 00-00-00-02
+    id: RFID02     
+    on_press:
+      then:
+        dfplayer.play: 2
+
+  - platform: pn532
+    uid: 00-00-00-02
+    id: pn02     
+    on_press:
+      then:
+        dfplayer.play: 2  
+
+  - platform: rc522
+    uid: 00-00-00-03
+    id: RFID03     
+    on_press:
+      then:
+        dfplayer.play: 3
+
+  - platform: pn532
+    uid: 00-00-00-03
+    id: pn03     
+    on_press:
+      then:
+        dfplayer.play: 3 
+
+  - platform: rc522
+    uid: 00-00-00-04
+    id: RFID04     
+    on_press:
+      then:
+        dfplayer.play: 4
+
+  - platform: pn532
+    uid: 00-00-00-04
+    id: pn04     
+    on_press:
+      then:
+        dfplayer.play: 4
+
+  - platform: rc522
+    uid: 00-00-00-05
+    id: RFID05     
+    on_press:
+      then:
+        dfplayer.play: 5
+
+  - platform: pn532
+    uid: 00-00-00-05
+    id: pn05     
+    on_press:
+      then:
+        dfplayer.play: 5 
+
+  - platform: rc522
+    uid: 00-00-00-06
+    id: RFID06     
+    on_press:
+      then:
+        dfplayer.play: 6
+
+  - platform: pn532
+    uid: 00-00-00-06
+    id: pn06     
+    on_press:
+      then:
+        dfplayer.play: 6 
+
+  - platform: rc522
+    uid: 00-00-00-07
+    id: RFID07     
+    on_press:
+      then:
+        dfplayer.play: 7
+
+  - platform: pn532
+    uid: 00-00-00-07
+    id: pn07     
+    on_press:
+      then:
+        dfplayer.play: 7 
+
+  - platform: rc522
+    uid: 00-00-00-08
+    id: RFID08     
+    on_press:
+      then:
+        dfplayer.play: 8
+
+  - platform: pn532
+    uid: 00-00-00-08
+    id: pn08     
+    on_press:
+      then:
+        dfplayer.play: 8
+
+  - platform: rc522
+    uid: 00-00-00-09
+    id: RFID09     
+    on_press:
+      then:
+        dfplayer.play: 9
+
+  - platform: pn532
+    uid: 00-00-00-09
+    id: pn09     
+    on_press:
+      then:
+        dfplayer.play: 9
+
+  - platform: rc522
+    uid: 00-00-00-10
+    id: RFID010     
+    on_press:
+      then:
+        dfplayer.play: 10
+
+  - platform: pn532
+    uid: 00-00-00-10
+    id: pn10     
+    on_press:
+      then:
+        dfplayer.play: 10
+
+  - platform: rc522
+    uid: 00-00-00-11
+    id: RFID11     
+    on_press:
+      then:
+        dfplayer.play: 11
+
+  - platform: pn532
+    uid: 00-00-00-11
+    id: pn11     
+    on_press:
+      then:
+        dfplayer.play: 11
+
+  - platform: rc522
+    uid: 00-00-00-12
+    id: RFID12    
+    on_press:
+      then:
+        dfplayer.play: 12 
+
+  - platform: pn532
+    uid: 00-00-00-12
+    id: pn12     
+    on_press:
+      then:
+        dfplayer.play: 12 
+            
+  - platform: pn532
+    uid: CB-89-78-76
+    id: pnup     
+    on_press:
+      then:
+        - dfplayer.volume_up
+        - dfplayer.play: 13 
+
+  - platform: pn532
+    uid: CB-89-6D-76
+    id: pndown     
+    on_press:
+      then:
+        - dfplayer.volume_down
+        - dfplayer.play: 14 
+
+uart:
+  tx_pin: D4
+  rx_pin: RX
+  baud_rate: 9600
+
+dfplayer:
+  on_finished_playback:
+    then:
+      logger.log: 'Playback finished event'
+
+# api:
+#   services:
+#   - service: dfplayer_next
+#     then:
+#       - dfplayer.play_next:
+#   - service: dfplayer_previous
+#     then:
+#       - dfplayer.play_previous:
+#   - service: dfplayer_play
+#     variables:
+#       file: int
+#     then:
+#       - dfplayer.play: !lambda 'return file;'
+#   - service: dfplayer_play_loop
+#     variables:
+#       file: int
+#       loop_: bool
+#     then:
+#       - dfplayer.play:
+#           file: !lambda 'return file;'
+#           loop: !lambda 'return loop_;'
+#   - service: dfplayer_play_folder
+#     variables:
+#       folder: int
+#       file: int
+#     then:
+#       - dfplayer.play_folder:
+#           folder: !lambda 'return folder;'
+#           file: !lambda 'return file;'
+
+#   - service: dfplayer_play_loop_folder
+#     variables:
+#       folder: int
+#     then:
+#       - dfplayer.play_folder:
+#           folder: !lambda 'return folder;'
+#           loop: true
+
+#   - service: dfplayer_set_device_tf
+#     then:
+#       - dfplayer.set_device: TF_CARD
+
+#   - service: dfplayer_set_device_usb
+#     then:
+#       - dfplayer.set_device: USB
+
+#   - service: dfplayer_set_volume
+#     variables:
+#       volume: int
+#     then:
+#       - dfplayer.set_volume: !lambda 'return volume;'
+#   - service: dfplayer_set_eq
+#     variables:
+#       preset: int
+#     then:
+#       - dfplayer.set_eq: !lambda 'return static_cast<dfplayer::EqPreset>(preset);'
+
+#   - service: dfplayer_sleep
+#     then:
+#       - dfplayer.sleep
+
+#   - service: dfplayer_reset
+#     then:
+#       - dfplayer.reset
+
+#   - service: dfplayer_start
+#     then:
+#       - dfplayer.start
+
+#   - service: dfplayer_pause
+#     then:
+#       - dfplayer.pause
+
+#   - service: dfplayer_stop
+#     then:
+#       - dfplayer.stop
+
+#   - service: dfplayer_random
+#     then:
+#       - dfplayer.random
+
+#   - service: dfplayer_volume_up
+#     then:
+#       - dfplayer.volume_up
+
+#   - service: dfplayer_volume_down
+#     then:
+#       - dfplayer.volume_down  
+    

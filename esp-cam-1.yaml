@@ -1,0 +1,111 @@
+
+substitutions:
+  hostname: esp-cam-1
+
+esphome:
+  name: $hostname
+  platform: ESP32
+  board: esp32cam
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+
+ota:
+  password: "f32ec9638fda7057db0020de03a8fb39"
+
+wifi:
+  ssid: "iptime"
+  password: "asdf1234"
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Esp-Cam-1 Fallback Hotspot"
+#    password: "28xomxFiFppG"
+
+captive_portal:
+
+# Example configuration entry
+esp32_camera:
+  external_clock:
+    pin: GPIO0
+    frequency: 20MHz
+  i2c_pins:
+    sda: GPIO26
+    scl: GPIO27
+  data_pins: [GPIO5, GPIO18, GPIO19, GPIO21, GPIO36, GPIO39, GPIO34, GPIO35]
+  vsync_pin: GPIO25
+  href_pin: GPIO23
+  pixel_clock_pin: GPIO22
+  power_down_pin: GPIO32
+  
+  name: $hostname stream
+  max_framerate: 24 fps
+  idle_framerate: 0.2 fps
+  resolution: SVGA
+  vertical_flip: false
+  horizontal_mirror: false
+  jpeg_quality: 30
+  contrast: 1
+  brightness: 0.
+  saturation: 0.
+
+esp32_camera_web_server:
+  - port: 8080
+    mode: stream
+#  - port: 8081
+#    mode: snapshot
+    
+output:
+# flashlight
+  - platform: gpio
+    pin: GPIO4
+    id: gpio_4
+# statuslight
+  - platform: gpio
+    pin:
+      number: GPIO33
+      inverted: True
+    id: gpio_33
+
+light:
+#flashlight
+  - platform: binary
+    output: gpio_4
+    name: $hostname Flash
+    id: flash
+#statuslight
+  - platform: binary   
+    output: gpio_33
+    name: $hostname Status
+    
+sensor:
+  - platform: wifi_signal
+    name: $hostname WiFi Signal
+    update_interval: 60s
+  - platform: uptime
+    name: $hostname Uptime
+
+text_sensor:
+  - platform: wifi_info
+    ssid:
+      name: $hostname WiFi_info
+
+switch:      
+  - platform: restart
+    name: $hostname restart
+    
+binary_sensor:
+  - platform: status
+    name: $hostname status
+    
+# sensore di movimento  
+  - platform: gpio
+    pin: 
+      number: GPIO13
+      mode: INPUT_PULLUP
+    name: "Sensore Presenza"
+    device_class: motion
+

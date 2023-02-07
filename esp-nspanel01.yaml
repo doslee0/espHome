@@ -1,0 +1,806 @@
+# Set some variables for convenience
+substitutions:
+  node_name: esp-nspanel01
+  device_name: esp-nspanel01
+
+# Note: this may not be needed if the pull request has been merged.
+# Check https://github.com/esphome/esphome/pull/2956 for current status.
+external_components:
+  - source: github://pr#2956
+    components: [nextion]
+    refresh: 1h
+
+esphome:
+  name: $node_name
+#  comment: $device_name
+
+esp32:
+  board: esp32dev
+
+wifi:
+  
+  ap:
+    ssid: "Esp-nspanel01 Fallback Hotspot"
+
+captive_portal:
+
+# Enable logging
+logger:
+  baud_rate: 0
+
+# Enable wireless updates
+ota:
+
+# Enable Home Assistant API
+api:
+  services:
+    - service: upload_tft
+      then:
+        - lambda: 'id(disp1)->upload_tft();'
+
+# A reboot button is always useful
+button:
+  - platform: restart
+    name: Restart $device_name
+
+
+binary_sensor:
+
+  - platform: gpio
+    name: $device_name Top Button
+    pin:
+      number: 14
+      inverted: true
+    on_release:
+      then:
+        - lambda: 'id(disp1).sleep(0);'
+        - delay: 1s
+        - lambda: 'id(disp1).send_command_printf("sleep_timer.en=1");'
+
+  - platform: gpio
+    name: $device_name Bottom Button
+    pin:
+      number: 27
+      inverted: true
+    on_release:
+      then:
+        - lambda: 'id(disp1).sleep(0);'
+        - delay: 1s
+        - lambda: 'id(disp1).send_command_printf("sleep_timer.en=1");'
+        
+  - platform: nextion
+    id: firstpage
+    page_id: 1
+    component_id: 11 
+    on_release:
+      then:
+        lambda: |-
+          if (id(wing1_up).state) {
+            id(disp1).send_command_printf("page0.b0.pic=0");
+            id(disp1).send_command_printf("page0.b0.pic2=0");
+          } else {
+            id(disp1).send_command_printf("page0.b0.pic=1");
+            id(disp1).send_command_printf("page0.b0.pic2=1");
+          }
+          
+          if (id(wing1_down).state) {
+            id(disp1).send_command_printf("page0.b4.pic=0");
+            id(disp1).send_command_printf("page0.b4.pic2=0");
+          } else {
+            id(disp1).send_command_printf("page0.b4.pic=1");
+            id(disp1).send_command_printf("page0.b4.pic2=1");
+          }
+        
+          if (id(wing2_up).state) {
+            id(disp1).send_command_printf("page0.b1.pic=0");
+            id(disp1).send_command_printf("page0.b1.pic2=0");
+          } else {
+            id(disp1).send_command_printf("page0.b1.pic=1");
+            id(disp1).send_command_printf("page0.b1.pic2=1");
+          }
+          
+          if (id(wing2_down).state) {
+            id(disp1).send_command_printf("page0.b5.pic=0");
+            id(disp1).send_command_printf("page0.b5.pic2=0");
+          } else {
+            id(disp1).send_command_printf("page0.b5.pic=1");
+            id(disp1).send_command_printf("page0.b5.pic2=1");
+          }
+          
+          if (id(wing3_up).state) {
+            id(disp1).send_command_printf("page0.b2.pic=0");
+            id(disp1).send_command_printf("page0.b2.pic2=0");
+          } else {
+            id(disp1).send_command_printf("page0.b2.pic=1");
+            id(disp1).send_command_printf("page0.b2.pic2=1");
+          }
+          
+          if (id(wing3_down).state) {
+            id(disp1).send_command_printf("page0.b6.pic=0");
+            id(disp1).send_command_printf("page0.b6.pic2=0");
+          } else {
+            id(disp1).send_command_printf("page0.b6.pic=1");
+            id(disp1).send_command_printf("page0.b6.pic2=1");
+          }
+                    
+          if (id(wing4_up).state) {
+            id(disp1).send_command_printf("page0.b3.pic=0");
+            id(disp1).send_command_printf("page0.b3.pic2=0");
+          } else {
+            id(disp1).send_command_printf("page0.b3.pic=1");
+            id(disp1).send_command_printf("page0.b3.pic2=1");
+          }
+          
+          if (id(wing4_down).state) {
+            id(disp1).send_command_printf("page0.b7.pic=0");
+            id(disp1).send_command_printf("page0.b7.pic2=0");
+          } else {
+            id(disp1).send_command_printf("page0.b7.pic=1");
+            id(disp1).send_command_printf("page0.b7.pic2=1");
+          }
+          
+  - platform: nextion
+    id: nextpage
+    page_id: 0
+    component_id: 11 
+    on_release:
+      then:
+        lambda: |-
+          if (id(wing5_up).state) {
+            id(disp1).send_command_printf("page1.b0.pic=0");
+            id(disp1).send_command_printf("page1.b0.pic2=0");
+          } else {
+            id(disp1).send_command_printf("page1.b0.pic=1");
+            id(disp1).send_command_printf("page1.b0.pic2=1");
+          }
+          
+          if (id(wing5_down).state) {
+            id(disp1).send_command_printf("page1.b4.pic=0");
+            id(disp1).send_command_printf("page1.b4.pic2=0");
+          } else {
+            id(disp1).send_command_printf("page1.b4.pic=1");
+            id(disp1).send_command_printf("page1.b4.pic2=1");
+          }
+        
+          if (id(wing6_up).state) {
+            id(disp1).send_command_printf("page1.b1.pic=0");
+            id(disp1).send_command_printf("page1.b1.pic2=0");
+          } else {
+            id(disp1).send_command_printf("page1.b1.pic=1");
+            id(disp1).send_command_printf("page1.b1.pic2=1");
+          }
+          
+          if (id(wing6_down).state) {
+            id(disp1).send_command_printf("page1.b5.pic=0");
+            id(disp1).send_command_printf("page1.b5.pic2=0");
+          } else {
+            id(disp1).send_command_printf("page1.b5.pic=1");
+            id(disp1).send_command_printf("page1.b5.pic2=1");
+          }
+          
+          if (id(wing7_up).state) {
+            id(disp1).send_command_printf("page1.b2.pic=0");
+            id(disp1).send_command_printf("page1.b2.pic2=0");
+          } else {
+            id(disp1).send_command_printf("page1.b2.pic=1");
+            id(disp1).send_command_printf("page1.b2.pic2=1");
+          }
+          
+          if (id(wing7_down).state) {
+            id(disp1).send_command_printf("page1.b6.pic=0");
+            id(disp1).send_command_printf("page1.b6.pic2=0");
+          } else {
+            id(disp1).send_command_printf("page1.b6.pic=1");
+            id(disp1).send_command_printf("page1.b6.pic2=1");
+          }
+                    
+          if (id(wing8_up).state) {
+            id(disp1).send_command_printf("page1.b3.pic=0");
+            id(disp1).send_command_printf("page1.b3.pic2=0");
+          } else {
+            id(disp1).send_command_printf("page1.b3.pic=1");
+            id(disp1).send_command_printf("page1.b3.pic2=1");
+          }
+          
+          if (id(wing8_down).state) {
+            id(disp1).send_command_printf("page1.b7.pic=0");
+            id(disp1).send_command_printf("page1.b7.pic2=0");
+          } else {
+            id(disp1).send_command_printf("page1.b7.pic=1");
+            id(disp1).send_command_printf("page1.b7.pic2=1");
+          }          
+          
+#  wing1----------------------
+  - platform: nextion
+    id: Button1
+    page_id: 0
+    component_id: 1 
+    on_release:
+      then:
+        - homeassistant.service:
+            service: switch.toggle
+            data:
+              entity_id: switch.wing1_up
+
+  - platform: homeassistant
+    id: wing1_up
+    entity_id: switch.wing1_up
+    on_press:
+      then: 
+        lambda: |-
+          id(disp1).send_command_printf("page0.b0.pic=0");
+          id(disp1).send_command_printf("page0.b0.pic2=0");
+    on_release:
+      then: 
+        lambda: |-
+          id(disp1).send_command_printf("page0.b0.pic=1");
+          id(disp1).send_command_printf("page0.b0.pic2=1"); 
+
+  - platform: nextion
+    id: Button5
+    page_id: 0
+    component_id: 5 
+    on_release:
+      then:
+        - homeassistant.service:
+            service: switch.toggle
+            data:
+              entity_id: switch.wing1_down
+
+  - platform: homeassistant
+    id: wing1_down
+    entity_id: switch.wing1_down
+    on_press:
+      then: 
+        lambda: |-
+          id(disp1).send_command_printf("page0.b4.pic=0");
+          id(disp1).send_command_printf("page0.b4.pic2=0");
+    on_release:
+      then: 
+        lambda: |-
+          id(disp1).send_command_printf("page0.b4.pic=1");
+          id(disp1).send_command_printf("page0.b4.pic2=1"); 
+
+
+
+#  wing2----------------------    
+  - platform: nextion
+    id: Button2
+    page_id: 0
+    component_id: 2 
+    on_release:
+      then:
+        - homeassistant.service:
+            service: switch.toggle
+            data:
+              entity_id: switch.wing2_up
+
+  - platform: homeassistant
+    id: wing2_up
+    entity_id: switch.wing2_up
+    on_press:
+      then: 
+        lambda: |-
+          id(disp1).send_command_printf("page0.b1.pic=0");
+          id(disp1).send_command_printf("page0.b1.pic2=0");
+    on_release:
+      then: 
+        lambda: |-
+          id(disp1).send_command_printf("page0.b1.pic=1");
+          id(disp1).send_command_printf("page0.b1.pic2=1"); 
+          
+  - platform: nextion
+    id: Button6
+    page_id: 0
+    component_id: 6 
+    on_release:
+      then:
+        - homeassistant.service:
+            service: switch.toggle
+            data:
+              entity_id: switch.wing2_down
+
+  - platform: homeassistant
+    id: wing2_down
+    entity_id: switch.wing2_down
+    on_press:
+      then: 
+        lambda: |-
+          id(disp1).send_command_printf("page0.b5.pic=0");
+          id(disp1).send_command_printf("page0.b5.pic2=0");
+    on_release:
+      then: 
+        lambda: |-
+          id(disp1).send_command_printf("page0.b5.pic=1");
+          id(disp1).send_command_printf("page0.b5.pic2=1"); 
+
+#  wing3----------------------    
+  - platform: nextion
+    id: Button3
+    page_id: 0
+    component_id: 3 
+    on_release:
+      then:
+        - homeassistant.service:
+            service: switch.toggle
+            data:
+              entity_id: switch.wing3_up
+
+  - platform: homeassistant
+    id: wing3_up
+    entity_id: switch.wing3_up
+    on_press:
+      then: 
+        lambda: |-
+          id(disp1).send_command_printf("page0.b2.pic=0");
+          id(disp1).send_command_printf("page0.b2.pic2=0");
+    on_release:
+      then: 
+        lambda: |-
+          id(disp1).send_command_printf("page0.b2.pic=1");
+          id(disp1).send_command_printf("page0.b2.pic2=1"); 
+          
+  - platform: nextion
+    id: Button7
+    page_id: 0
+    component_id: 7 
+    on_release:
+      then:
+        - homeassistant.service:
+            service: switch.toggle
+            data:
+              entity_id: switch.wing3_down
+
+  - platform: homeassistant
+    id: wing3_down
+    entity_id: switch.wing3_down
+    on_press:
+      then: 
+        lambda: |-
+          id(disp1).send_command_printf("page0.b6.pic=0");
+          id(disp1).send_command_printf("page0.b6.pic2=0");
+    on_release:
+      then: 
+        lambda: |-
+          id(disp1).send_command_printf("page0.b6.pic=1");
+          id(disp1).send_command_printf("page0.b6.pic2=1");   
+          
+#  wing4----------------------    
+  - platform: nextion
+    id: Button4
+    page_id: 0
+    component_id: 4 
+    on_release:
+      then:
+        - homeassistant.service:
+            service: switch.toggle
+            data:
+              entity_id: switch.wing4_up
+
+  - platform: homeassistant
+    id: wing4_up
+    entity_id: switch.wing4_up
+    on_press:
+      then: 
+        lambda: |-
+          id(disp1).send_command_printf("page0.b3.pic=0");
+          id(disp1).send_command_printf("page0.b3.pic2=0");
+    on_release:
+      then: 
+        lambda: |-
+          id(disp1).send_command_printf("page0.b3.pic=1");
+          id(disp1).send_command_printf("page0.b3.pic2=1"); 
+          
+  - platform: nextion
+    id: Button8
+    page_id: 0
+    component_id: 8 
+    on_release:
+      then:
+        - homeassistant.service:
+            service: switch.toggle
+            data:
+              entity_id: switch.wing4_down
+
+  - platform: homeassistant
+    id: wing4_down
+    entity_id: switch.wing4_down
+    on_press:
+      then: 
+        lambda: |-
+          id(disp1).send_command_printf("page0.b7.pic=0");
+          id(disp1).send_command_printf("page0.b7.pic2=0");
+    on_release:
+      then: 
+        lambda: |-
+          id(disp1).send_command_printf("page0.b7.pic=1");
+          id(disp1).send_command_printf("page0.b7.pic2=1");   
+
+          
+#  wing5----------------------
+  - platform: nextion
+    id: Button9
+    page_id: 1
+    component_id: 1 
+    on_release:
+      then:
+        - homeassistant.service:
+            service: switch.toggle
+            data:
+              entity_id: switch.wing5_up
+
+  - platform: homeassistant
+    id: wing5_up
+    entity_id: switch.wing5_up
+    on_press:
+      then: 
+        lambda: |-
+          id(disp1).send_command_printf("page1.b0.pic=0");
+          id(disp1).send_command_printf("page1.b0.pic2=0");
+    on_release:
+      then: 
+        lambda: |-
+          id(disp1).send_command_printf("page1.b0.pic=1");
+          id(disp1).send_command_printf("page1.b0.pic2=1"); 
+
+  - platform: nextion
+    id: Button10
+    page_id: 1
+    component_id: 5 
+    on_release:
+      then:
+        - homeassistant.service:
+            service: switch.toggle
+            data:
+              entity_id: switch.wing5_down
+
+  - platform: homeassistant
+    id: wing5_down
+    entity_id: switch.wing5_down
+    on_press:
+      then: 
+        lambda: |-
+          id(disp1).send_command_printf("page1.b4.pic=0");
+          id(disp1).send_command_printf("page1.b4.pic2=0");
+    on_release:
+      then: 
+        lambda: |-
+          id(disp1).send_command_printf("page1.b4.pic=1");
+          id(disp1).send_command_printf("page1.b4.pic2=1"); 
+
+
+
+#  wing6----------------------    
+  - platform: nextion
+    id: Button11
+    page_id: 1
+    component_id: 2 
+    on_release:
+      then:
+        - homeassistant.service:
+            service: switch.toggle
+            data:
+              entity_id: switch.wing6_up
+
+  - platform: homeassistant
+    id: wing6_up
+    entity_id: switch.wing6_up
+    on_press:
+      then: 
+        lambda: |-
+          id(disp1).send_command_printf("page1.b1.pic=0");
+          id(disp1).send_command_printf("page1.b1.pic2=0");
+    on_release:
+      then: 
+        lambda: |-
+          id(disp1).send_command_printf("page1.b1.pic=1");
+          id(disp1).send_command_printf("page1.b1.pic2=1"); 
+          
+  - platform: nextion
+    id: Button12
+    page_id: 1
+    component_id: 6 
+    on_release:
+      then:
+        - homeassistant.service:
+            service: switch.toggle
+            data:
+              entity_id: switch.wing6_down
+
+  - platform: homeassistant
+    id: wing6_down
+    entity_id: switch.wing6_down
+    on_press:
+      then: 
+        lambda: |-
+          id(disp1).send_command_printf("page1.b5.pic=0");
+          id(disp1).send_command_printf("page1.b5.pic2=0");
+    on_release:
+      then: 
+        lambda: |-
+          id(disp1).send_command_printf("page1.b5.pic=1");
+          id(disp1).send_command_printf("page1.b5.pic2=1"); 
+
+#  wing7----------------------    
+  - platform: nextion
+    id: Button13
+    page_id: 1
+    component_id: 3 
+    on_release:
+      then:
+        - homeassistant.service:
+            service: switch.toggle
+            data:
+              entity_id: switch.wing7_up
+
+  - platform: homeassistant
+    id: wing7_up
+    entity_id: switch.wing7_up
+    on_press:
+      then: 
+        lambda: |-
+          id(disp1).send_command_printf("page1.b2.pic=0");
+          id(disp1).send_command_printf("page1.b2.pic2=0");
+    on_release:
+      then: 
+        lambda: |-
+          id(disp1).send_command_printf("page1.b2.pic=1");
+          id(disp1).send_command_printf("page1.b2.pic2=1"); 
+          
+  - platform: nextion
+    id: Button14
+    page_id: 1
+    component_id: 7 
+    on_release:
+      then:
+        - homeassistant.service:
+            service: switch.toggle
+            data:
+              entity_id: switch.wing7_down
+
+  - platform: homeassistant
+    id: wing7_down
+    entity_id: switch.wing7_down
+    on_press:
+      then: 
+        lambda: |-
+          id(disp1).send_command_printf("page1.b6.pic=0");
+          id(disp1).send_command_printf("page1.b6.pic2=0");
+    on_release:
+      then: 
+        lambda: |-
+          id(disp1).send_command_printf("page1.b6.pic=1");
+          id(disp1).send_command_printf("page1.b6.pic2=1");   
+          
+#  wing8----------------------    
+  - platform: nextion
+    id: Button15
+    page_id: 1
+    component_id: 4 
+    on_release:
+      then:
+        - homeassistant.service:
+            service: switch.toggle
+            data:
+              entity_id: switch.wing8_up
+
+  - platform: homeassistant
+    id: wing8_up
+    entity_id: switch.wing8_up
+    on_press:
+      then: 
+        lambda: |-
+          id(disp1).send_command_printf("page1.b3.pic=0");
+          id(disp1).send_command_printf("page1.b3.pic2=0");
+    on_release:
+      then: 
+        lambda: |-
+          id(disp1).send_command_printf("page1.b3.pic=1");
+          id(disp1).send_command_printf("page1.b3.pic2=1"); 
+          
+  - platform: nextion
+    id: Button16
+    page_id: 1
+    component_id: 8 
+    on_release:
+      then:
+        - homeassistant.service:
+            service: switch.toggle
+            data:
+              entity_id: switch.wing8_down
+
+  - platform: homeassistant
+    id: wing8_down
+    entity_id: switch.wing8_down
+    on_press:
+      then: 
+        lambda: |-
+          id(disp1).send_command_printf("page1.b7.pic=0");
+          id(disp1).send_command_printf("page1.b7.pic2=0");
+    on_release:
+      then: 
+        lambda: |-
+          id(disp1).send_command_printf("page1.b7.pic=1");
+          id(disp1).send_command_printf("page1.b7.pic2=1");   
+
+################################                      
+number:
+  platform: template
+  name: $device_name Brightness
+  id: brightness
+  entity_category: config
+  unit_of_measurement: '%'
+  min_value: 0
+  max_value: 100
+  step: 1
+  initial_value: 30
+  set_action:
+    then:
+      lambda: |-
+        id(disp1).set_backlight_brightness(x/100);
+
+switch:
+  # Pin 4 always needs to be on to power up the display
+  - platform: gpio
+    id: screen_power
+    entity_category: config
+    pin:
+      number: 4
+      inverted: true
+    restore_mode: ALWAYS_ON
+    
+uart:
+  id: tf_uart
+  tx_pin: 16
+  rx_pin: 17
+  baud_rate: 115200
+
+# Configure the screen itself
+display:
+  - platform: nextion
+    id: disp1
+    uart_id: tf_uart
+    tft_url: https://192.168.0.90:8123/local/hmi.tft
+    
+    on_setup:
+      then:
+        - number.set:
+            id: brightness
+            value: 30
+        - lambda: 'id(disp1).send_command_printf("sleep_timer.en=1");'
+
+    on_wake:
+      then:
+        - lambda: 'id(disp1).send_command_printf("sleep_timer.en=1");'
+            
+#    wake_up_page: 0
+#    auto_wake_on_touch: true
+    
+    lambda: |-
+        if (id(wing1_up).state) {
+           it.send_command_printf("page0.b0.pic=0");
+           it.send_command_printf("page0.b0.pic2=0");
+        } else {
+           it.send_command_printf("page0.b0.pic=1");
+           it.send_command_printf("page0.b0.pic2=1");
+        }
+        
+        if (id(wing1_down).state) {
+           it.send_command_printf("page0.b4.pic=0");
+           it.send_command_printf("page0.b4.pic2=0");
+        } else {
+           it.send_command_printf("page0.b4.pic=1");
+           it.send_command_printf("page0.b4.pic2=1");
+        }
+
+        if (id(wing2_up).state) {
+           it.send_command_printf("page0.b1.pic=0");
+           it.send_command_printf("page0.b1.pic2=0");
+        } else {
+           it.send_command_printf("page0.b1.pic=1");
+           it.send_command_printf("page0.b1.pic2=1");
+        }
+
+        if (id(wing2_down).state) {
+           it.send_command_printf("page0.b5.pic=0");
+           it.send_command_printf("page0.b5.pic2=0");
+        } else {
+           it.send_command_printf("page0.b5.pic=1");
+           it.send_command_printf("page0.b5.pic2=1");
+        }
+        
+        if (id(wing3_up).state) {
+           it.send_command_printf("page0.b2.pic=0");
+           it.send_command_printf("page0.b2.pic2=0");
+        } else {
+           it.send_command_printf("page0.b2.pic=1");
+           it.send_command_printf("page0.b2.pic2=1");
+        }
+
+        if (id(wing3_down).state) {
+           it.send_command_printf("page0.b6.pic=0");
+           it.send_command_printf("page0.b6.pic2=0");
+        } else {
+           it.send_command_printf("page0.b6.pic=1");
+           it.send_command_printf("page0.b6.pic2=1");
+        }
+                
+        if (id(wing4_up).state) {
+           it.send_command_printf("page0.b3.pic=0");
+           it.send_command_printf("page0.b3.pic2=0");
+        } else {
+           it.send_command_printf("page0.b3.pic=1");
+           it.send_command_printf("page0.b3.pic2=1");
+        }
+
+        if (id(wing4_down).state) {
+           it.send_command_printf("page0.b7.pic=0");
+           it.send_command_printf("page0.b7.pic2=0");
+        } else {
+           it.send_command_printf("page0.b7.pic=1");
+           it.send_command_printf("page0.b7.pic2=1");
+        }
+        
+        if (id(wing5_up).state) {
+           it.send_command_printf("page1.b0.pic=0");
+           it.send_command_printf("page1.b0.pic2=0");
+        } else {
+           it.send_command_printf("page1.b0.pic=1");
+           it.send_command_printf("page1.b0.pic2=1");
+        }
+        
+        if (id(wing5_down).state) {
+           it.send_command_printf("page1.b4.pic=0");
+           it.send_command_printf("page1.b4.pic2=0");
+        } else {
+           it.send_command_printf("page1.b4.pic=1");
+           it.send_command_printf("page1.b4.pic2=1");
+        }
+
+        if (id(wing6_up).state) {
+           it.send_command_printf("page1.b1.pic=0");
+           it.send_command_printf("page1.b1.pic2=0");
+        } else {
+           it.send_command_printf("page1.b1.pic=1");
+           it.send_command_printf("page1.b1.pic2=1");
+        }
+
+        if (id(wing6_down).state) {
+           it.send_command_printf("page1.b5.pic=0");
+           it.send_command_printf("page1.b5.pic2=0");
+        } else {
+           it.send_command_printf("page1.b5.pic=1");
+           it.send_command_printf("page1.b5.pic2=1");
+        }
+        
+        if (id(wing7_up).state) {
+           it.send_command_printf("page1.b2.pic=0");
+           it.send_command_printf("page1.b2.pic2=0");
+        } else {
+           it.send_command_printf("page1.b2.pic=1");
+           it.send_command_printf("page1.b2.pic2=1");
+        }
+
+        if (id(wing7_down).state) {
+           it.send_command_printf("page1.b6.pic=0");
+           it.send_command_printf("page1.b6.pic2=0");
+        } else {
+           it.send_command_printf("page1.b6.pic=1");
+           it.send_command_printf("page1.b6.pic2=1");
+        }
+                
+        if (id(wing8_up).state) {
+           it.send_command_printf("page1.b3.pic=0");
+           it.send_command_printf("page1.b3.pic2=0");
+        } else {
+           it.send_command_printf("page1.b3.pic=1");
+           it.send_command_printf("page1.b3.pic2=1");
+        }
+
+        if (id(wing8_down).state) {
+           it.send_command_printf("page1.b7.pic=0");
+           it.send_command_printf("page1.b7.pic2=0");
+        } else {
+           it.send_command_printf("page1.b7.pic=1");
+           it.send_command_printf("page1.b7.pic2=1");
+        }
